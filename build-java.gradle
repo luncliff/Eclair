@@ -1,0 +1,99 @@
+import org.gradle.internal.os.OperatingSystem
+import java.nio.file.Paths
+
+// https://docs.gradle.org/6.0.1/userguide/java_library_plugin.html
+// https://docs.gradle.org/6.0.1/userguide/java_library_distribution_plugin.html
+plugins {
+    id 'java'
+    id 'java-library'
+    id 'java-library-distribution'
+}
+
+repositories {
+    jcenter()
+}
+
+group "dev.luncliff"
+version = '0.2'
+
+// https://docs.gradle.org/current/userguide/java_testing.html#using_junit5
+dependencies {
+    // for public
+    api 'org.apache.commons:commons-math3:3.6.1'
+    // for internal
+    implementation 'com.google.guava:guava:28.0-jre'
+    // for test: JUnit Jupiter API, Engine
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.5.1'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.5.1'
+}
+
+// https://docs.gradle.org/current/javadoc/org/gradle/api/JavaVersion.html
+java {
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
+}
+
+// https://docs.gradle.org/current/userguide/java_plugin.html#sec:changing_java_project_layout
+sourceSets {
+    main {
+        java {
+            srcDirs = ['src/main/java']
+        }
+        resources {
+            srcDirs = ['src/resources']
+        }
+    }
+    test {
+        java {
+            srcDirs = ['src/test/java']
+        }
+        resources {
+            srcDirs = ['src/resources']
+        }
+    }
+}
+
+// https://docs.gradle.org/current/dsl/org.gradle.api.tasks.testing.Test.html
+// https://docs.gradle.org/current/userguide/java_testing.html#header
+test {
+    useJUnitPlatform()
+    // https://blog.hkwon.me/gradle-test-task-logging/
+	testLogging {
+		events "passed", "skipped", "failed"
+        showStandardStreams = true
+        showCauses = true
+        showExceptions = true
+        showStackTraces = true
+        exceptionFormat = 'full'
+	}
+    // https://serviceorientedarchitect.com/how-to-combinejoin-file-paths-in-gradlegroovy/
+    def system = OperatingSystem.current()
+    def dirname = Paths.get("$project.buildDir", "lib/main/debug").toString()
+    // notifty the library path
+    if (system.isWindows()){
+        systemProperty 'java.library.path', Paths.get(dirname, "windows").toString()
+    }
+    if (system.isMacOsX()){
+        systemProperty 'java.library.path', Paths.get(dirname, "macos").toString()
+    }
+    if (system.isLinux()){
+        systemProperty 'java.library.path', Paths.get(dirname, "linux").toString()
+    }
+    // configure JVM env for test suite
+    minHeapSize = "128m"
+    maxHeapSize = '1G'
+    // system env variable
+    environment.put("TEST", "true")
+    environment.put("BUILD_DIR", project.buildDir.toString())
+}
+
+// https://docs.gradle.org/6.0.1/dsl/org.gradle.api.tasks.bundling.Zip.html
+// https://docs.gradle.org/current/userguide/distribution_plugin.html
+distributions {
+    main {
+        distributionBaseName = 'cpp-gradle'
+        contents {
+            from 'docs', 'src/main/public', 'ReadMe.md', 'build/lib'
+        }
+    }
+}

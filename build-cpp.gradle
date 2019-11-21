@@ -1,0 +1,139 @@
+import org.gradle.internal.os.OperatingSystem
+import java.nio.file.Paths
+
+// https://docs.gradle.org/6.0.1/userguide/building_cpp_projects.html
+// https://docs.gradle.org/6.0.1/userguide/cpp_testing.html
+plugins {
+    id 'cpp-library' // for building libraries
+    id 'cpp-unit-test' // for building and running test executables
+}
+
+repositories {
+    jcenter()
+}
+
+allprojects {
+    apply plugin: 'xcode'
+    apply plugin: 'visual-studio'
+}
+
+group "dev.luncliff"
+version = '0.2'
+
+// https://docs.gradle.org/current/dsl/org.gradle.api.tasks.Exec.html
+task codegen(type:Exec) {
+    workingDir = project.projectDir
+    println "running 'javac' in $workingDir ..."
+
+    commandLine 'javac', '-h', "src/main/headers", \
+        Paths.get("src/main/java", "dev/luncliff/Module.java")
+}
+
+def currentSystem = OperatingSystem.current()
+println "$currentSystem"
+println " static: " + currentSystem.getLinkLibraryName("jvm")
+println " shared: " + currentSystem.getSharedLibraryName("jvm")
+
+// https://docs.gradle.org/6.0.1/userguide/cpp_library_plugin.html
+library {
+    // name of the output binary
+    baseName = 'adapter' 
+    linkage = [Linkage.SHARED] // [Linkage.STATIC, Linkage.SHARED]    
+    targetMachines = [
+        // https://docs.gradle.org/5.5.1/javadoc/org/gradle/nativeplatform/TargetMachineFactory.html
+        machines.windows.x86_64,
+        machines.linux.x86_64,
+        machines.macOS.x86_64
+    ]
+    // https://docs.gradle.org/6.0.1/userguide/building_cpp_projects.html#sec:custom_cpp_source_set_paths
+    // https://docs.gradle.org/5.5.1/javadoc/org/gradle/api/file/ConfigurableFileCollection.html
+    source.from file('src/main/cpp'), file('src/internal')
+    privateHeaders.from \
+        file("$System.env.JDK_HOME\\include"), \
+        file("$System.env.JDK_HOME\\include\\win32"), \
+        file("$System.env.JDK_HOME\\include\\darwin"), \
+        file("$System.env.JDK_HOME\\include\\linux"), \
+        file('src/main/headers'), file('src/main/cpp'), file('src/internal')
+    
+    //  The C++ library plugin currently requires exactly one public header directory
+    publicHeaders.from file('src/main/public')
+}
+
+// https://docs.gradle.org/6.0.1/userguide/cpp_unit_test_plugin.html
+unitTest {
+    targetMachines = [
+        machines.linux.x86_64,
+        machines.windows.x86_64,
+        machines.macOS.x86_64
+    ]
+    // https://docs.gradle.org/6.0.1/userguide/cpp_unit_test_plugin.html#sec:cpp_unit_test_conventions
+    source.from file('test/cpp')
+    privateHeaders.from file('test/headers'), file('test/cpp'), file('src/internal')
+}
+
+// https://docs.gradle.org/6.0.1/userguide/cpp_library_plugin.html#sec:cpp_library_compile_task
+// https://docs.gradle.org/6.0.1/dsl/org.gradle.language.cpp.tasks.CppCompile.html
+tasks.withType(CppCompile).configureEach {
+    positionIndependentCode = true
+    debuggable = true
+
+    macros.put('DEBUG', '1')
+
+    // Define toolchain-specific compiler options
+    compilerArgs.addAll toolChain.map { NativeToolChain toolChain ->
+        if (toolChain in Clang) {
+            return ['-Wall', '-g', '-std=c++17', '-stdlib=libc++']
+        }
+        if (toolChain in Gcc) {
+            return ['-Wall', '-g','-std=gnu++17']
+        }
+        if (toolChain in VisualCpp) {
+            return [
+                '/W4', '/std:c++latest',
+            ]
+        }
+        return []
+    }
+}
+
+// https://docs.gradle.org/6.0.1/dsl/org.gradle.nativeplatform.tasks.LinkSharedLibrary.html
+tasks.withType(LinkSharedLibrary).configureEach {
+    def system = OperatingSystem.current()
+    // Cannot set the value of read-only property 'debuggable' for task' :linkDebugLinux'
+    if (system.isLinux() == false){
+        debuggable = true
+    }
+
+    // select a specific dll(dylib, so)
+    // def libPath = currentSystem.getLinkLibraryName("$System.env.JDK_HOME\\lib\\jvm")
+    // libs.from file(libPath) 
+
+    // select multiple dll(dylib, so)
+    // def pattern = currentSystem.getLinkLibraryName('*')
+    // libs.from fileTree(dir: "$System.env.JDK_HOME\\lib", includes: [pattern])
+
+    // https://docs.gradle.org/6.0.1/dsl/org.gradle.nativeplatform.platform.NativePlatform.html
+    linkerArgs.addAll targetPlatform.map { platform ->
+        println "linker target architecture: $platform.architecture"
+        if (platform.operatingSystem.isWindows()){
+            // ...
+        }
+        return []
+    }
+}
+
+// https://docs.gradle.org/6.0.1/dsl/org.gradle.nativeplatform.test.tasks.RunTestExecutable.html
+tasks.withType(RunTestExecutable).configureEach {
+    environment.put("TEST", "true")
+}
+
+// https://docs.gradle.org/6.0.1/userguide/visual_studio_plugin.html
+visualStudio {
+    solution {
+        solutionFile.location = file('solution.sln')
+    }
+    projects.all {
+        projectFile.location = file('project.vcxproj')
+        filtersFile.location = file('project.vcxproj.filters')
+    }
+}
