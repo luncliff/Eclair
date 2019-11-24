@@ -1,63 +1,13 @@
-#
-# References
-#   https://docs.microsoft.com/en-us/azure/devops/pipelines/tasks/build/gradle?view=azure-devops
-#
 
-# trigger:
-# - master
+jobs:
+- template: azure/vm-windows.yml
+  parameters:
+    name: windows
 
-pool:
-  vmImage: 'ubuntu-latest' # other options: 'macOS-10.13', 'vs2017-win2016'
+- template: azure/vm-ubuntu.yml
+  parameters:
+    name: linux
 
-steps:
-
-# generate gradle wrapper
-- task: CmdLine@2
-  inputs:
-    script: 'gradle wrapper' 
-
-- task: Gradle@2
-  inputs:
-    options: '--version'
-    javaHomeOption: 'JDKVersion'
-    jdkVersionOption: '1.11'
-    jdkArchitectureOption: 'x64'
-
-# cpp tasks
-- task: Gradle@2
-  inputs:
-    options: '-b build-cpp.gradle'
-    jdkVersionOption: '1.11'
-    tasks: 'codegen'
-
-- task: Gradle@2
-  inputs:
-    options: '-b build-cpp.gradle'
-    jdkVersionOption: '1.11'
-    jdkArchitectureOption: 'x64'
-    tasks: 'build'
-
-- task: Gradle@2
-  inputs:
-    options: '-b build-cpp.gradle'
-    jdkVersionOption: '1.11'
-    jdkArchitectureOption: 'x64'
-    tasks: 'test'
-
-# # java tasks
-# - task: Gradle@2
-#   inputs:
-#     gradleOptions: '-b build-java.gradle'
-#     javaHomeOption: 'JDKVersion'
-#     jdkVersionOption: '1.11'
-#     jdkArchitectureOption: 'x64'
-#     tasks: 'build'
-# - task: Gradle@2
-#   inputs:
-#     gradleOptions: '-b build-cpp.gradle'
-#     javaHomeOption: 'JDKVersion'
-#     jdkVersionOption: '1.11'
-#     jdkArchitectureOption: 'x64'
-#     publishJUnitResults: true
-#     testResultsFiles: '**/TEST-*.xml'
-#     tasks: 'test'
+- template: azure/vm-macos.yml
+  parameters:
+    name: macos

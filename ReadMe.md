@@ -1,6 +1,10 @@
 
 # C++ Gradle in Kor
 
+[![Build Status](https://dev.azure.com/luncliff/personal/_apis/build/status/luncliff.cpp-gradle-in-kor?branchName=master)](https://dev.azure.com/luncliff/personal/_build/latest?definitionId=31&branchName=master)
+
+[![](https://img.shields.io/badge/Gradle-5.6%2B-%2302303A)](https://gradle.org)
+
 [Gradle](https://gradle.org/features/)만으로 JNI 모듈을 빌드/테스트/패키징 하는 템플릿 프로젝트
 
 ### References

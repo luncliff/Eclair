@@ -91,7 +91,7 @@ test {
 // https://docs.gradle.org/current/userguide/distribution_plugin.html
 distributions {
     main {
-        distributionBaseName = 'cpp-gradle'
+        // distributionBaseName = 'cpp-gradle'
         contents {
             from 'docs', 'src/main/public', 'ReadMe.md', 'build/lib'
         }

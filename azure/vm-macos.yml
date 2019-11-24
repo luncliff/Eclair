@@ -1,0 +1,55 @@
+
+jobs:
+  - job: ${{ parameters.name }}
+    pool:
+      vmImage: 'ubuntu-latest'
+    steps:
+      # generate gradle wrapper
+      - task: CmdLine@2
+        inputs:
+          script: |
+            gradle wrapper;
+            echo $(which javac);
+
+      - task: Gradle@2
+        inputs:
+          jdkVersionOption: '1.11'
+          tasks: 'tasks'
+
+      # cpp tasks
+      - task: Gradle@2
+        inputs:
+          options: '-b build-cpp.gradle'
+          jdkVersionOption: '1.11'
+          tasks: 'codegen'
+
+      - task: Gradle@2
+        inputs:
+          options: '-b build-cpp.gradle'
+          jdkVersionOption: '1.11'
+          jdkArchitectureOption: 'x64'
+          tasks: 'assemble'
+
+      - task: Gradle@2
+        inputs:
+          options: '-b build-cpp.gradle'
+          jdkVersionOption: '1.11'
+          jdkArchitectureOption: 'x64'
+          tasks: 'build' # include 'test'
+
+      # java tasks
+      - task: Gradle@2
+        inputs:
+          options: '-b build-java.gradle'
+          jdkVersionOption: '1.11'
+          jdkArchitectureOption: 'x64'
+          tasks: 'assemble'
+
+      - task: Gradle@2
+        inputs:
+          options: '-b build-java.gradle'
+          jdkVersionOption: '1.11'
+          jdkArchitectureOption: 'x64'
+          tasks: 'test'
+          publishJUnitResults: true
+          testResultsFiles: '**/TEST-*.xml'

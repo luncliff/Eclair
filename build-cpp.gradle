@@ -31,8 +31,9 @@ task codegen(type:Exec) {
 
 def currentSystem = OperatingSystem.current()
 println "$currentSystem"
-println " static: " + currentSystem.getLinkLibraryName("jvm")
-println " shared: " + currentSystem.getSharedLibraryName("jvm")
+// println " static: " + currentSystem.getLinkLibraryName("jvm")
+// println " shared: " + currentSystem.getSharedLibraryName("jvm")
+println "JAVA_HOME: $System.env.JAVA_HOME"
 
 // https://docs.gradle.org/6.0.1/userguide/cpp_library_plugin.html
 library {
@@ -49,10 +50,10 @@ library {
     // https://docs.gradle.org/5.5.1/javadoc/org/gradle/api/file/ConfigurableFileCollection.html
     source.from file('src/main/cpp'), file('src/internal')
     privateHeaders.from \
-        file("$System.env.JDK_HOME\\include"), \
-        file("$System.env.JDK_HOME\\include\\win32"), \
-        file("$System.env.JDK_HOME\\include\\darwin"), \
-        file("$System.env.JDK_HOME\\include\\linux"), \
+        file("$System.env.JAVA_HOME\\include"), \
+        file("$System.env.JAVA_HOME\\include\\win32"), \
+        file("$System.env.JAVA_HOME\\include\\darwin"), \
+        file("$System.env.JAVA_HOME\\include\\linux"), \
         file('src/main/headers'), file('src/main/cpp'), file('src/internal')
     
     //  The C++ library plugin currently requires exactly one public header directory
@@ -105,12 +106,12 @@ tasks.withType(LinkSharedLibrary).configureEach {
     }
 
     // select a specific dll(dylib, so)
-    // def libPath = currentSystem.getLinkLibraryName("$System.env.JDK_HOME\\lib\\jvm")
+    // def libPath = currentSystem.getLinkLibraryName("$System.env.JAVA_HOME\\lib\\jvm")
     // libs.from file(libPath) 
 
     // select multiple dll(dylib, so)
     // def pattern = currentSystem.getLinkLibraryName('*')
-    // libs.from fileTree(dir: "$System.env.JDK_HOME\\lib", includes: [pattern])
+    // libs.from fileTree(dir: "$System.env.JAVA_HOME\\lib", includes: [pattern])
 
     // https://docs.gradle.org/6.0.1/dsl/org.gradle.nativeplatform.platform.NativePlatform.html
     linkerArgs.addAll targetPlatform.map { platform ->
