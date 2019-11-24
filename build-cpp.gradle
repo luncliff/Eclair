@@ -18,7 +18,7 @@ allprojects {
 }
 
 group "dev.luncliff"
-version = '0.2'
+version = '0.3'
 
 // https://docs.gradle.org/current/dsl/org.gradle.api.tasks.Exec.html
 task codegen(type:Exec) {
@@ -30,9 +30,7 @@ task codegen(type:Exec) {
 }
 
 def currentSystem = OperatingSystem.current()
-println "$currentSystem"
-// println " static: " + currentSystem.getLinkLibraryName("jvm")
-// println " shared: " + currentSystem.getSharedLibraryName("jvm")
+println "System: $currentSystem"
 println "JAVA_HOME: $System.env.JAVA_HOME"
 
 // https://docs.gradle.org/6.0.1/userguide/cpp_library_plugin.html
@@ -97,19 +95,15 @@ tasks.withType(CppCompile).configureEach {
     }
 }
 
+// for module ...
 // https://docs.gradle.org/6.0.1/dsl/org.gradle.nativeplatform.tasks.LinkSharedLibrary.html
 tasks.withType(LinkSharedLibrary).configureEach {
-    def system = OperatingSystem.current()
-    // Cannot set the value of read-only property 'debuggable' for task' :linkDebugLinux'
-    if (system.isLinux() == false){
-        debuggable = true
+    // generage library names to ...
+    if (currentSystem.isWindows()){
+        println currentSystem.getLinkLibraryName('ws2_32')
     }
 
-    // select a specific dll(dylib, so)
-    // def libPath = currentSystem.getLinkLibraryName("$System.env.JAVA_HOME\\lib\\jvm")
-    // libs.from file(libPath) 
-
-    // select multiple dll(dylib, so)
+    // glob library in specific folder
     // def pattern = currentSystem.getLinkLibraryName('*')
     // libs.from fileTree(dir: "$System.env.JAVA_HOME\\lib", includes: [pattern])
 
@@ -117,7 +111,19 @@ tasks.withType(LinkSharedLibrary).configureEach {
     linkerArgs.addAll targetPlatform.map { platform ->
         println "linker target architecture: $platform.architecture"
         if (platform.operatingSystem.isWindows()){
-            // ...
+            // the example uses 'winsock2'
+            def libname = currentSystem.getLinkLibraryName('ws2_32');
+            return [libname]
+        }
+        return []
+    }
+}
+
+// test executable may have dependency ...
+tasks.withType(LinkExecutable).configureEach {
+    linkerArgs.addAll targetPlatform.map { platform ->
+        if (platform.operatingSystem.isWindows()){
+            return [ currentSystem.getLinkLibraryName('ws2_32') ]
         }
         return []
     }

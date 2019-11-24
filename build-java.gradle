@@ -14,7 +14,7 @@ repositories {
 }
 
 group "dev.luncliff"
-version = '0.2'
+version = '0.3'
 
 // https://docs.gradle.org/current/userguide/java_testing.html#using_junit5
 dependencies {
@@ -90,10 +90,28 @@ test {
 // https://docs.gradle.org/6.0.1/dsl/org.gradle.api.tasks.bundling.Zip.html
 // https://docs.gradle.org/current/userguide/distribution_plugin.html
 distributions {
-    main {
-        // distributionBaseName = 'cpp-gradle'
-        contents {
-            from 'docs', 'src/main/public', 'ReadMe.md', 'build/lib'
-        }
+    // use default ...
+}
+
+// https://docs.gradle.org/current/dsl/org.gradle.api.tasks.bundling.Zip.html#org.gradle.api.tasks.bundling.Zip:includes
+distZip {
+    includeEmptyDirs = false
+    def folder = "$project.name-$project.version"
+    println "zip: $folder"
+
+    into(folder) {
+        from 'ReadMe.md', 'LICENSE'
+    }
+    into("$folder/docs") {
+        from file('docs')
+    }
+    into("$folder/cpp") {
+        from 'build/lib/main'
+    }
+    into("$folder/cpp/include") {
+        from 'src/main/public'
+    }
+    into("$folder/test") {
+        from 'build/reports/tests/test'
     }
 }

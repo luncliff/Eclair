@@ -1,6 +1,7 @@
 
 #include <cerrno>
 #include <chrono>
+#include <system_error>
 
 #if __has_include(<WinSock2.h>) // use winsock
 #include <WS2tcpip.h>

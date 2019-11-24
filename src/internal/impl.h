@@ -9,6 +9,8 @@
 #if __has_include(<WinSock2.h>) // use winsock
 #include <WinSock2.h>
 
+struct sockaddr_in6;
+
 #elif __has_include(<netinet/in.h>) // use netinet
 #include <netdb.h>
 #include <netinet/in.h>

@@ -2,19 +2,19 @@
 jobs:
   - job: ${{ parameters.name }}
     pool:
-      vmImage: 'ubuntu-latest'
+      vmImage: ${{ parameters.image }}
+
     steps:
-      # generate gradle wrapper
       - task: CmdLine@2
         inputs:
-          script: |
-            gradle wrapper;
-            echo $(which javac);
+          script: gradle wrapper
+        displayName: "Generate 'gradlew'"
 
       - task: Gradle@2
         inputs:
           jdkVersionOption: '1.11'
           tasks: 'tasks'
+        displayName: "Check if Gradle is working"
 
       # cpp tasks
       - task: Gradle@2
@@ -22,13 +22,15 @@ jobs:
           options: '-b build-cpp.gradle'
           jdkVersionOption: '1.11'
           tasks: 'codegen'
+        displayName: "C++ Codegen with Java Compiler"
 
       - task: Gradle@2
         inputs:
           options: '-b build-cpp.gradle'
           jdkVersionOption: '1.11'
           jdkArchitectureOption: 'x64'
-          tasks: 'assemble'
+          tasks: 'assembleDebug assembleRelease'
+        displayName: "C++ Build(Assemble)"
 
       - task: Gradle@2
         inputs:
@@ -36,6 +38,7 @@ jobs:
           jdkVersionOption: '1.11'
           jdkArchitectureOption: 'x64'
           tasks: 'build' # include 'test'
+        displayName: "C++ Unit Test"
 
       # java tasks
       - task: Gradle@2
@@ -44,6 +47,7 @@ jobs:
           jdkVersionOption: '1.11'
           jdkArchitectureOption: 'x64'
           tasks: 'assemble'
+        displayName: "Java Build(Assemble)"
 
       - task: Gradle@2
         inputs:
@@ -53,3 +57,4 @@ jobs:
           tasks: 'test'
           publishJUnitResults: true
           testResultsFiles: '**/TEST-*.xml'
+        displayName: "Java Unit Test - JUnit5"

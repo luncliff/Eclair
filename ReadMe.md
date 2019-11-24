@@ -2,7 +2,6 @@
 # C++ Gradle in Kor
 
 [![Build Status](https://dev.azure.com/luncliff/personal/_apis/build/status/luncliff.cpp-gradle-in-kor?branchName=master)](https://dev.azure.com/luncliff/personal/_build/latest?definitionId=31&branchName=master)
-
 [![](https://img.shields.io/badge/Gradle-5.6%2B-%2302303A)](https://gradle.org)
 
 [Gradle](https://gradle.org/features/)만으로 JNI 모듈을 빌드/테스트/패키징 하는 템플릿 프로젝트
@@ -36,8 +35,8 @@
 
 ### Setup
 
-* OpenJDK 11+
-* Gradle 6.0+
+* JDK 11+
+* Gradle 5.6+
 
 #### Windows
 
@@ -48,20 +47,13 @@ choco install openjdk
 choco install gradle
 ```
 
-설치 이후 Gradle에서 요구하는 환경변수 `JAVA_HOME` 및 일반적으로 Java 툴킷에 필요한 `JDK_HOME`을 설정.
-
-```console
-PS C:\Users\user> Write-Output $env:JAVA_HOME
-C:\Program Files\OpenJDK\jdk-13.0.1
-PS C:\Users\user> Write-Output $env:JDK_HOME
-C:\Program Files\OpenJDK\jdk-13.0.1
-```
-
-Android NDK는 따로 설치되지 않은 경우를 상정하여, 다음과 같이 설치.
+설치 이후 Gradle에서 요구하는 환경변수 `JAVA_HOME` 및 일반적으로 Java 툴킷에 필요한 `JDK_HOME`을 설정. (빌드에서는 `JAVA_HOME`만을 사용)
 
 ```ps1
-choco install android-ndk --version=19.3
-# installed in C:\Android\android-ndk
+Write-Output $env:JAVA_HOME
+# C:\Program Files\OpenJDK\jdk-13.0.1
+Write-Output $env:JDK_HOME
+# C:\Program Files\OpenJDK\jdk-13.0.1
 ```
 
 #### UNIX-like
@@ -109,7 +101,6 @@ Revision:     fad121066a68c4701acd362daf4287a7c309a0f5
 ...
 ```
 
-
 ### Start
 
 시작에 앞서, Gradle 공식 문서 2개를 확인할 것.
@@ -123,28 +114,42 @@ Gradle의 C++/Swift 예제 프로젝트들은 https://github.com/gradle/native-s
 
 Gradle Plugin의 충돌 문제로 인해 빌드 구성은 C++(build-cpp.gradle)와 JNI(build-java.gradle)로 분리하여 진행함
 
-```
+```bash
 gradle -b build-cpp.gradle  codegen build
 gradle -b build-java.gradle build
 ```
 
 ### Test
 
-```
+```bash
 gradle -b build-cpp.gradle  test 
 gradle -b build-java.gradle test
 ```
 
-Open `./build/reports/tests/test/index.html` to see the JUnit report.
+Java 테스트가 종료된 후, ./build/reports/tests/test/index.html 경로에 JUnit 테스트 보고서가 생성됨.
 
+```ps1
+Invoke-Item .\build\reports\tests\test\index.html
+```
 
 ### Packaging
 
-개발 과정에서는 build 명령으로 충분하지만, [패키징에는 `assembleRelease`가 포함되어야 하므로](https://docs.gradle.org/6.0.1/userguide/cpp_library_plugin.html#sec:cpp_library_tasks) 명령을 사용함
-
+개발 과정에서는 build 명령으로 충분하지만, [패키징에는 `assembleRelease`가 포함되어야 하므로](https://docs.gradle.org/6.0.1/userguide/cpp_library_plugin.html#sec:cpp_library_tasks) 다음과 같이 추가 빌드 이후 `distZip`을 사용해 zip 파일 생성.
 
 ```bash
+gradle -b build-cpp.gradle  assembleDebug assembleRelease
 gradle -b build-java.gradle build distZip
 ```
 
-> TBA
+생성 결과는 'build/distributions'에 위치.
+
+```console
+PS C:\Users\luncl\cpp-gradle-in-kor> dir .\build\distributions
+
+    Directory: C:\Users\luncl\cpp-gradle-in-kor\build\distributions
+
+Mode                LastWriteTime         Length Name
+----                -------------         ------ ----
+-a----       11/24/2019   5:29 PM        5232640 cpp-gradle-in-kor-0.3.tar
+-a----       11/24/2019   6:09 PM        8553158 cpp-gradle-in-kor-0.3.zip
+```

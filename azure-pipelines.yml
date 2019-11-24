@@ -1,13 +1,24 @@
+#
+# References
+#   https://docs.microsoft.com/en-us/azure/devops/pipelines/agents/hosted?view=azure-devops#use-a-microsoft-hosted-agent
+#
+trigger:
+  branches:
+    exclude:
+      - docs
 
 jobs:
-- template: azure/vm-windows.yml
+- template: azure/vm-gradle-template.yml
   parameters:
     name: windows
+    image: windows-2019
 
-- template: azure/vm-ubuntu.yml
+- template: azure/vm-gradle-template.yml
   parameters:
     name: linux
+    image: ubuntu-latest
 
-- template: azure/vm-macos.yml
+- template: azure/vm-gradle-template.yml
   parameters:
     name: macos
+    image: macos-latest
