@@ -1,5 +1,5 @@
 
-// https://docs.gradle.org/current/javadoc/org/gradle/nativeplatform/platform/OperatingSystem.html
+// https://docs.gradle.org/6.0.1/javadoc/org/gradle/nativeplatform/platform/OperatingSystem.html
 import org.gradle.internal.os.OperatingSystem
 import java.nio.file.Paths
 
@@ -15,6 +15,12 @@ repositories {
     jcenter()
 }
 
+def currentSystem = OperatingSystem.current()
+println "using System: $currentSystem"
+
+def javaDir = "$System.env.JAVA_HOME"
+println "using JAVA_HOME: $javaDir"
+
 group "dev.luncliff"
 version = '0.4'
 
@@ -28,12 +34,6 @@ task codegen(type:Exec) {
         Paths.get("src/main/java", "dev/luncliff/Module.java"), \
         Paths.get("src/main/java", "dev/luncliff/Module2.java")
 }
-
-def currentSystem = OperatingSystem.current()
-println "using System: $currentSystem"
-
-def javaDir = "$System.env.JAVA_HOME"
-println "using JAVA_HOME: $javaDir"
 
 library {
     // name of the output binary
@@ -109,11 +109,10 @@ tasks.withType(CppCompile).configureEach {
             return ['-Wall', '-std=gnu++17']
         }
         if (toolChain in VisualCpp) {
-            return ['/W4', '/std:c++latest', '/utf-8']
+            return ['/W4', '/std:c++17', '/utf-8']
         }
         return [] // unknown compiler
     }
-
 }
 
 
@@ -126,6 +125,7 @@ unitTest {
         machines.windows.x86_64,
         machines.macOS.x86_64
     ]
+
     // https://docs.gradle.org/6.0.1/userguide/cpp_unit_test_plugin.html#sec:cpp_unit_test_conventions
     source.from file('test/cpp')
     privateHeaders.from \

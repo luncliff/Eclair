@@ -9,21 +9,19 @@
 * 책
     * Gradle 철저 입문 - 김완섭 옮김, 길벗 출판사
     * 안드로이드의 모든 것 NDK - 고현철,전호철 지음, 한빛미디어
-* JNI: Java Native Interface
-    * https://docs.oracle.com/en/java/javase/11/docs/specs/jni/index.html
-    * http://nerdposts.blogspot.com/2010/10/jni-mac-os-x-simple-sample.html?m=1
-    * https://support.microsoft.com/ko-kr/help/222092
-* Apache Maven
-    * http://maven.apache.org/guides/introduction/introduction-to-the-standard-directory-layout.html
 * Gradle 공식 문서, 예제
-    * https://guides.gradle.org/building-cpp-libraries/
-    * https://docs.gradle.org/current/userguide/building_cpp_projects.html
-    * https://github.com/gradle/native-samples
-* Gradle 사용법, Tips
-    * https://serviceorientedarchitect.com/how-to-combinejoin-file-paths-in-gradlegroovy/
+    * **[Introducing the new C++ plugins](https://blog.gradle.org/introducing-the-new-cpp-plugins)**
+    * [Gradle Build Language Reference](https://docs.gradle.org/6.0.1/dsl/index.html)
+    * [Building C++ Projects](https://docs.gradle.org/6.0.1/userguide/building_cpp_projects.html)
+    * [Building and Testing C++ Libraries](https://guides.gradle.org/building-cpp-libraries/)
+    * [GitHub: Gradle Native Project Samples](https://github.com/gradle/native-samples)
+* Apache Maven
+    * [Introduction to the Standard Directory Layout](http://maven.apache.org/guides/introduction/introduction-to-the-standard-directory-layout.html)
+* Java Native Interface(JNI)
+    * [Specification](https://docs.oracle.com/en/java/javase/11/docs/specs/jni/index.html)
 * JUnit5
-    * https://junit.org/junit5/docs/current/user-guide/
-    * https://developer.ibm.com/tutorials/j-introducing-junit5-part1-jupiter-api/
+    * [JUnit 5 User Guide](https://junit.org/junit5/docs/current/user-guide/)
+    * [IBM Developer Tutorial: The JUnit 5 Jupiter API](https://developer.ibm.com/tutorials/j-introducing-junit5-part1-jupiter-api/)
 
 ### Code Organization
 

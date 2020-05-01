@@ -9,14 +9,16 @@ jobs:
 
       - task: CmdLine@2
         inputs:
-          script: gradle wrapper
-        displayName: "Generate 'gradlew'"
+          script: |
+            gradle --version
+            gradle wrapper
+        displayName: "Gradle Wrapper"
 
       - task: Gradle@2
         inputs:
           jdkVersionOption: "1.11"
           tasks: "tasks"
-        displayName: "Check if Gradle is working"
+        displayName: "Gradle Tasks"
 
       # cpp tasks
       - task: Gradle@2
@@ -40,7 +42,7 @@ jobs:
           jdkVersionOption: "1.11"
           jdkArchitectureOption: "x64"
           tasks: "build" # include 'test'
-        displayName: "C++ Unit Test"
+        displayName: "C++ Test"
 
       # java tasks
       - task: Gradle@2
@@ -59,4 +61,4 @@ jobs:
           tasks: "test"
           publishJUnitResults: true
           testResultsFiles: "**/TEST-*.xml"
-        displayName: "Java Unit Test - JUnit5"
+        displayName: "Java Test - JUnit5"

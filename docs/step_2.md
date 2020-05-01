@@ -1,5 +1,7 @@
 # Java 빌드 추가 및 JUnit 5로 테스트하기
 
+> (WIP)
+
 ### Build
 
 Gradle Plugin의 충돌 문제로 인해 빌드 구성은 C++(cpp.gradle)와 JNI(build.gradle)로 분리하여 진행함
