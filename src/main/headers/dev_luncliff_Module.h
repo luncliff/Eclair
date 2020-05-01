@@ -15,14 +15,6 @@ extern "C" {
 JNIEXPORT jboolean JNICALL Java_dev_luncliff_Module_isTestMode
   (JNIEnv *, jclass);
 
-/*
- * Class:     dev_luncliff_Module
- * Method:    makeBlob
- * Signature: (I)[B
- */
-JNIEXPORT jbyteArray JNICALL Java_dev_luncliff_Module_makeBlob
-  (JNIEnv *, jclass, jint);
-
 #ifdef __cplusplus
 }
 #endif

@@ -1,0 +1,149 @@
+
+// https://docs.gradle.org/current/javadoc/org/gradle/nativeplatform/platform/OperatingSystem.html
+import org.gradle.internal.os.OperatingSystem
+import java.nio.file.Paths
+
+// https://docs.gradle.org/6.0.1/userguide/building_cpp_projects.html
+// https://docs.gradle.org/6.0.1/userguide/cpp_library_plugin.html
+// https://docs.gradle.org/6.0.1/userguide/cpp_testing.html
+plugins {
+    id 'cpp-library'
+    id 'cpp-unit-test'
+}
+
+repositories {
+    jcenter()
+}
+
+group "dev.luncliff"
+version = '0.4'
+
+// https://docs.gradle.org/6.0.1/dsl/org.gradle.api.tasks.Exec.html
+task codegen(type:Exec) {
+    // change the working directory
+    workingDir = project.projectDir
+    println "running 'javac' in $workingDir ..."
+
+    commandLine 'javac', '-h', "src/main/headers", \
+        Paths.get("src/main/java", "dev/luncliff/Module.java"), \
+        Paths.get("src/main/java", "dev/luncliff/Module2.java")
+}
+
+def currentSystem = OperatingSystem.current()
+println "using System: $currentSystem"
+
+def javaDir = "$System.env.JAVA_HOME"
+println "using JAVA_HOME: $javaDir"
+
+library {
+    // name of the output binary
+    baseName = 'eclair' 
+
+    // [Linkage.STATIC, Linkage.SHARED]    
+    linkage = [Linkage.SHARED] 
+
+    // https://docs.gradle.org/6.0.1/javadoc/org/gradle/nativeplatform/TargetMachineFactory.html
+    targetMachines = [
+        machines.windows.x86_64,
+        machines.linux.x86_64,
+        machines.macOS.x86_64
+    ]
+
+    // https://docs.gradle.org/6.0.1/userguide/building_cpp_projects.html#sec:custom_cpp_source_set_paths
+    // https://docs.gradle.org/6.0.1/javadoc/org/gradle/api/file/ConfigurableFileCollection.html
+    source.from \
+        file('src/main/cpp')
+
+    // plugin currently requires exactly one public header directory
+    publicHeaders.from \
+        file('src/main/public')
+
+    // private
+    privateHeaders.from \
+        file("$javaDir\\include"), \
+            file("$javaDir\\include\\win32"), file("$javaDir\\include\\darwin"), file("$javaDir\\include\\linux"), \
+        file('src/main/cpp'), \
+        file('src/main/headers')
+}
+
+// https://docs.gradle.org/6.0.1/dsl/org.gradle.nativeplatform.tasks.LinkSharedLibrary.html
+tasks.withType(LinkSharedLibrary).configureEach {
+    // // glob library in specific folder
+    // if (currentSystem.isMacOsX()){
+    //     def pattern = currentSystem.getLinkLibraryName('*.dylib')
+    //     def prebuilts = fileTree(dir: "$javaDir\\lib", includes: [pattern])
+    //     for (file in prebuilts.getFiles()){
+    //         println "module: ${file.getName()}"
+    //     }
+    //     libs.from prebuilts
+    // }
+
+    // https://docs.gradle.org/6.0.1/dsl/org.gradle.nativeplatform.platform.NativePlatform.html
+    linkerArgs.addAll targetPlatform.map { platform ->
+        if (platform.operatingSystem.isWindows()){
+            def libname = currentSystem.getLinkLibraryName('ws2_32');
+            return [libname]
+        }
+        return []
+    }
+}
+
+// https://docs.gradle.org/6.0.1/userguide/cpp_library_plugin.html#sec:cpp_library_compile_task
+// https://docs.gradle.org/6.0.1/dsl/org.gradle.language.cpp.tasks.CppCompile.html
+tasks.withType(CppCompile).configureEach {
+    println "configure task: ${getName()}"
+
+    // CppCompile properties
+    positionIndependentCode = true
+    debuggable = true
+
+    // compile-time macro
+    macros.put('DEBUG', '1')
+
+    // compiler options
+    compilerArgs.addAll toolChain.map { NativeToolChain toolChain ->
+        if (toolChain in Clang) {
+            return ['-Wall', '-std=c++17', '-stdlib=libc++']
+        }
+        if (toolChain in Gcc) {
+            return ['-Wall', '-std=gnu++17']
+        }
+        if (toolChain in VisualCpp) {
+            return ['/W4', '/std:c++latest', '/utf-8']
+        }
+        return [] // unknown compiler
+    }
+
+}
+
+
+// https://docs.gradle.org/6.0.1/userguide/cpp_unit_test_plugin.html
+unitTest {
+    baseName = 'eclair_test' 
+
+    targetMachines = [
+        machines.linux.x86_64,
+        machines.windows.x86_64,
+        machines.macOS.x86_64
+    ]
+    // https://docs.gradle.org/6.0.1/userguide/cpp_unit_test_plugin.html#sec:cpp_unit_test_conventions
+    source.from file('test/cpp')
+    privateHeaders.from \
+        file('externals/ut/include'), \
+        file('test/cpp')
+}
+
+// test executable may have dependency ...
+tasks.withType(LinkExecutable).configureEach {
+    linkerArgs.addAll targetPlatform.map { platform ->
+        if (platform.operatingSystem.isWindows()){
+            return [ currentSystem.getLinkLibraryName('ws2_32') ]
+        }
+        return []
+    }
+}
+
+// https://docs.gradle.org/6.0.1/dsl/org.gradle.nativeplatform.test.tasks.RunTestExecutable.html
+tasks.withType(RunTestExecutable).configureEach {
+    environment.put("TEST", "true")
+}

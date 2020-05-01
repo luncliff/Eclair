@@ -1,37 +1,44 @@
+#include <cstdio>
+#include <cstdlib>
 
-#include "cpp-gradle-in-kor.h"
-#include "impl.h"
+#include "adapter.h"
 
 // JNI generated code
 #include "dev_luncliff_Module.h"
+#include "dev_luncliff_Module2.h"
 
-extern "C" { // JNI native library callbacks
+bool is_test_mode() { return ::getenv("TEST") != nullptr; }
 
-// https://lsit81.tistory.com/entry/JNIOnLoad를-이용한-Interface-정의
+// JNI callbacks
+extern "C" {
+
+/**
+ * @see https://lsit81.tistory.com/entry/JNIOnLoad를-이용한-Interface-정의
+ */
 jint JNI_OnLoad(JavaVM* vm, void*) {
     JNIEnv* env{};
     jint result = -1;
-
     if (vm->GetEnv((void**)&env, JNI_VERSION_1_6) != JNI_OK) {
         return result;
     }
-    std::fputs(__func__, stdout);
+    ::fputs(__func__, stdout);
     return JNI_VERSION_1_6;
 }
 
-// http://bleaklow.com/2006/02/18/jni_onunload_mostly_useless.html
+/**
+ * @see http://bleaklow.com/2006/02/18/jni_onunload_mostly_useless.html
+ */
 void JNI_OnUnload(JavaVM* vm, void*) {
-    std::fputs(__func__, stdout);
+    ::fputs(__func__, stdout);
     return;
 }
-}
+
+} // extern "C"
 
 jboolean Java_dev_luncliff_Module_isTestMode(JNIEnv*, jclass) {
-    return std::getenv("TEST") != nullptr;
+    return is_test_mode();
 }
 
-jbyteArray Java_dev_luncliff_Module_makeBlob(JNIEnv* env, jclass, jint) {
-    if (env == nullptr)
-        env->GetByteArrayElements(nullptr, 0);
-    return nullptr;
+jboolean Java_dev_luncliff_Module2_isTestMode(JNIEnv* env, jclass clazz) {
+    return is_test_mode();
 }

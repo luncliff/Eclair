@@ -1,10 +1,12 @@
-
 jobs:
   - job: ${{ parameters.name }}
     pool:
       vmImage: ${{ parameters.image }}
 
     steps:
+      - checkout: self
+        submodules: true
+
       - task: CmdLine@2
         inputs:
           script: gradle wrapper
@@ -12,49 +14,49 @@ jobs:
 
       - task: Gradle@2
         inputs:
-          jdkVersionOption: '1.11'
-          tasks: 'tasks'
+          jdkVersionOption: "1.11"
+          tasks: "tasks"
         displayName: "Check if Gradle is working"
 
       # cpp tasks
       - task: Gradle@2
         inputs:
-          options: '-b build-cpp.gradle'
-          jdkVersionOption: '1.11'
-          tasks: 'codegen'
-        displayName: "C++ Codegen with Java Compiler"
+          options: "-b cpp.gradle"
+          jdkVersionOption: "1.11"
+          tasks: "codegen"
+        displayName: "C++ Codegen"
 
       - task: Gradle@2
         inputs:
-          options: '-b build-cpp.gradle'
-          jdkVersionOption: '1.11'
-          jdkArchitectureOption: 'x64'
-          tasks: 'assembleDebug assembleRelease'
+          options: "-b cpp.gradle"
+          jdkVersionOption: "1.11"
+          jdkArchitectureOption: "x64"
+          tasks: "assembleDebug assembleRelease"
         displayName: "C++ Build(Assemble)"
 
       - task: Gradle@2
         inputs:
-          options: '-b build-cpp.gradle'
-          jdkVersionOption: '1.11'
-          jdkArchitectureOption: 'x64'
-          tasks: 'build' # include 'test'
+          options: "-b cpp.gradle"
+          jdkVersionOption: "1.11"
+          jdkArchitectureOption: "x64"
+          tasks: "build" # include 'test'
         displayName: "C++ Unit Test"
 
       # java tasks
       - task: Gradle@2
         inputs:
-          options: '-b build-java.gradle'
-          jdkVersionOption: '1.11'
-          jdkArchitectureOption: 'x64'
-          tasks: 'assemble'
+          options: "-b build.gradle"
+          jdkVersionOption: "1.11"
+          jdkArchitectureOption: "x64"
+          tasks: "assemble"
         displayName: "Java Build(Assemble)"
 
       - task: Gradle@2
         inputs:
-          options: '-b build-java.gradle'
-          jdkVersionOption: '1.11'
-          jdkArchitectureOption: 'x64'
-          tasks: 'test'
+          options: "-b build.gradle"
+          jdkVersionOption: "1.11"
+          jdkArchitectureOption: "x64"
+          tasks: "test"
           publishJUnitResults: true
-          testResultsFiles: '**/TEST-*.xml'
+          testResultsFiles: "**/TEST-*.xml"
         displayName: "Java Unit Test - JUnit5"

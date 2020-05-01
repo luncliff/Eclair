@@ -1,8 +1,6 @@
+# Eclair
 
-# C++ Gradle in Kor
-
-[![Build Status](https://dev.azure.com/luncliff/personal/_apis/build/status/luncliff.cpp-gradle-in-kor?branchName=master)](https://dev.azure.com/luncliff/personal/_build/latest?definitionId=31&branchName=master)
-[![](https://img.shields.io/badge/Gradle-5.6%2B-%2302303A)](https://gradle.org)
+[![](https://img.shields.io/badge/Gradle-6.0%2B-%2302303A)](https://gradle.org)
 
 [Gradle](https://gradle.org/features/)만으로 JNI 모듈을 빌드/테스트/패키징 하는 템플릿 프로젝트
 
@@ -29,14 +27,17 @@
 
 ### Code Organization
 
-기본적으로 Gradle로 빌드되는 Sub-project로 가정하며, [Apache Maven의 구성 방법](http://maven.apache.org/guides/introduction/introduction-to-the-standard-directory-layout.html)을 기본으로 하되, 가능한 C++ 프로젝트들과 유사하게 재구성
+기본적으로 Gradle로 빌드되는 Sub-project로 가정하며, [Apache Maven의 구성 방법](http://maven.apache.org/guides/introduction/introduction-to-the-standard-directory-layout.html)을 기본으로 하되,  
+각 단계를 진행하며 달라진 부분을 눈치채고 변경할 수 있도록 구성하였습니다.
 
 ## How To
+
+Java, Gradle을 설치한 후, [docs](./docs)에서 단계적으로 따라할 수 있도록 작성되었습니다.
 
 ### Setup
 
 * JDK 11+
-* Gradle 5.6+
+* Gradle 6.0+
 
 #### Windows
 
@@ -99,57 +100,4 @@ Gradle 6.0.1
 Build time:   2019-11-18 20:25:01 UTC
 Revision:     fad121066a68c4701acd362daf4287a7c309a0f5
 ...
-```
-
-### Start
-
-시작에 앞서, Gradle 공식 문서 2개를 확인할 것.
-
-* https://docs.gradle.org/current/userguide/getting_started.html
-* https://docs.gradle.org/current/userguide/building_cpp_projects.html
-
-Gradle의 C++/Swift 예제 프로젝트들은 https://github.com/gradle/native-samples 에서 확인 가능. (버전 차이에 주의)
-
-### Build
-
-Gradle Plugin의 충돌 문제로 인해 빌드 구성은 C++(build-cpp.gradle)와 JNI(build-java.gradle)로 분리하여 진행함
-
-```bash
-gradle -b build-cpp.gradle  codegen build
-gradle -b build-java.gradle build
-```
-
-### Test
-
-```bash
-gradle -b build-cpp.gradle  test 
-gradle -b build-java.gradle test
-```
-
-Java 테스트가 종료된 후, ./build/reports/tests/test/index.html 경로에 JUnit 테스트 보고서가 생성됨.
-
-```ps1
-Invoke-Item .\build\reports\tests\test\index.html
-```
-
-### Packaging
-
-개발 과정에서는 build 명령으로 충분하지만, [패키징에는 `assembleRelease`가 포함되어야 하므로](https://docs.gradle.org/6.0.1/userguide/cpp_library_plugin.html#sec:cpp_library_tasks) 다음과 같이 추가 빌드 이후 `distZip`을 사용해 zip 파일 생성.
-
-```bash
-gradle -b build-cpp.gradle  assembleDebug assembleRelease
-gradle -b build-java.gradle build distZip
-```
-
-생성 결과는 'build/distributions'에 위치.
-
-```console
-PS C:\Users\luncl\cpp-gradle-in-kor> dir .\build\distributions
-
-    Directory: C:\Users\luncl\cpp-gradle-in-kor\build\distributions
-
-Mode                LastWriteTime         Length Name
-----                -------------         ------ ----
--a----       11/24/2019   5:29 PM        5232640 cpp-gradle-in-kor-0.3.tar
--a----       11/24/2019   6:09 PM        8553158 cpp-gradle-in-kor-0.3.zip
 ```

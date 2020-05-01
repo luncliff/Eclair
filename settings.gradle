@@ -1,6 +1,1 @@
-//
-// References
-//  https://docs.gradle.org/6.0.1/userguide/building_cpp_projects.html
-//
-
-rootProject.name = 'cpp-gradle-in-kor'
+rootProject.name = 'eclair'

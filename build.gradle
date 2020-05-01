@@ -14,9 +14,9 @@ repositories {
 }
 
 group "dev.luncliff"
-version = '0.3'
+version = '0.4'
 
-// https://docs.gradle.org/current/userguide/java_testing.html#using_junit5
+// https://docs.gradle.org/6.0.1/userguide/java_testing.html#using_junit5
 dependencies {
     // for public
     api 'org.apache.commons:commons-math3:3.6.1'
@@ -27,13 +27,13 @@ dependencies {
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.5.1'
 }
 
-// https://docs.gradle.org/current/javadoc/org/gradle/api/JavaVersion.html
+// https://docs.gradle.org/6.0.1/javadoc/org/gradle/api/JavaVersion.html
 java {
     sourceCompatibility = JavaVersion.VERSION_11
     targetCompatibility = JavaVersion.VERSION_11
 }
 
-// https://docs.gradle.org/current/userguide/java_plugin.html#sec:changing_java_project_layout
+// https://docs.gradle.org/6.0.1/userguide/java_plugin.html#sec:changing_java_project_layout
 sourceSets {
     main {
         java {
@@ -53,8 +53,8 @@ sourceSets {
     }
 }
 
-// https://docs.gradle.org/current/dsl/org.gradle.api.tasks.testing.Test.html
-// https://docs.gradle.org/current/userguide/java_testing.html#header
+// https://docs.gradle.org/6.0.1/dsl/org.gradle.api.tasks.testing.Test.html
+// https://docs.gradle.org/6.0.1/userguide/java_testing.html#header
 test {
     useJUnitPlatform()
     // https://blog.hkwon.me/gradle-test-task-logging/
@@ -88,30 +88,30 @@ test {
 }
 
 // https://docs.gradle.org/6.0.1/dsl/org.gradle.api.tasks.bundling.Zip.html
-// https://docs.gradle.org/current/userguide/distribution_plugin.html
+// https://docs.gradle.org/6.0.1/userguide/distribution_plugin.html
 distributions {
     // use default ...
 }
 
-// https://docs.gradle.org/current/dsl/org.gradle.api.tasks.bundling.Zip.html#org.gradle.api.tasks.bundling.Zip:includes
+// https://docs.gradle.org/6.0.1/dsl/org.gradle.api.tasks.bundling.Zip.html#org.gradle.api.tasks.bundling.Zip:includes
 distZip {
     includeEmptyDirs = false
+
     def folder = "$project.name-$project.version"
     println "zip: $folder"
 
     into(folder) {
-        from 'ReadMe.md', 'LICENSE'
+        from 'ReadMe.md', 'LICENSE', "build/libs"
     }
     into("$folder/docs") {
         from file('docs')
+        from 'build/reports/tests/test'
     }
-    into("$folder/cpp") {
+    into("$folder") {
         from 'build/lib/main'
     }
-    into("$folder/cpp/include") {
+    into("$folder/include") {
         from 'src/main/public'
-    }
-    into("$folder/test") {
-        from 'build/reports/tests/test'
+        from 'src/main/headers'
     }
 }
