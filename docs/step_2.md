@@ -6,7 +6,7 @@
 
 ### 프로젝트 구조
 
-기본적으로 Java 코드들은 [Maven Standard Directory Layout](http://maven.apache.org/guides/introduction/introduction-to-the-standard-directory-layout.html)을 따라 배치하고, 이 프로젝트를 위한 build.gradle, settings.gralde을 둘 것입니다.
+기본적으로 Java 코드들은 [Maven Standard Directory Layout](http://maven.apache.org/guides/introduction/introduction-to-the-standard-directory-layout.html)을 따라 배치하고, 이 프로젝트를 위한 [`build.gradle`](../build.gradle), [`settings.gradle`](../settings.gradle)을 둘 것입니다.
 
 ```console
 $ tree -L 2 .
@@ -130,7 +130,7 @@ sourceSets {
 여기까지 작성된 시점에, 터미널에서 Gradle 명령으로 빌드/테스트가 가능해야 합니다.
 
 ```console
-$ gradle -b ./ready.gradle build test --info
+$ gradle build test --info
 ...
 ```
 
