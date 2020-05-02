@@ -58,14 +58,14 @@ sourceSets {
 test {
     useJUnitPlatform()
     // https://blog.hkwon.me/gradle-test-task-logging/
-	testLogging {
-		events "passed", "skipped", "failed"
+    testLogging {
+        events "passed", "skipped", "failed"
         showStandardStreams = true
         showCauses = true
         showExceptions = true
         showStackTraces = true
         exceptionFormat = 'full'
-	}
+    }
     // https://serviceorientedarchitect.com/how-to-combinejoin-file-paths-in-gradlegroovy/
     def system = OperatingSystem.current()
     def dirname = Paths.get("$project.buildDir", "lib/main/debug").toString()

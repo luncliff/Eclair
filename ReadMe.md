@@ -1,6 +1,6 @@
 # Eclair
 
-[![](https://img.shields.io/badge/Gradle-6.0%2B-%2302303A)](https://gradle.org)
+[![Build Status](https://dev.azure.com/luncliff/personal/_apis/build/status/luncliff.Eclair?branchName=master)](https://dev.azure.com/luncliff/personal/_build/latest?definitionId=38&branchName=master) [![](https://img.shields.io/badge/Gradle-6.0%2B-%2302303A)](https://gradle.org)
 
 [Gradle](https://gradle.org/features/)만으로 JNI 모듈을 빌드/테스트/패키징 하는 템플릿 프로젝트
 

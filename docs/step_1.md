@@ -483,7 +483,7 @@ $ tree ./src/main/headers/
 ## 결과 확인
 
 최종적으로, [cpp.gradle](../cpp.gradle)의 사용법은 2 가지로 정리됩니다.
-충분히 실험해보고 다음 단계로 넘어가기를 바랍니다.
+충분히 실험해보고 [다음 단계](./step_2.md)로 넘어가기를 바랍니다.
 
 ### Codegen / Assemble
 
