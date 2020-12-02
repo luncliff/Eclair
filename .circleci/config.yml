@@ -1,0 +1,36 @@
+# Java Gradle CircleCI 2.0 configuration
+#
+# References
+#   - https://circleci.com/docs/2.0/language-java/ for more details
+#   - https://hub.docker.com/r/circleci/openjdk
+version: 2
+
+jobs:
+  build:
+    docker:
+      - image: circleci/openjdk:11.0-jdk-stretch
+
+    working_directory: ~/repo
+
+    environment:
+      JVM_OPTS: -Xmx1200m
+      TERM: dumb
+
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "build.gradle" }}
+            - v1-dependencies-
+
+      - run: gradle dependencies
+      - save_cache:
+          paths:
+            - ~/.gradle
+          key: v1-dependencies-{{ checksum "build.gradle" }}
+
+      - run: gradle -b cpp.gradle codegen assemble
+      - run: gradle test
+
+      - store_test_results:
+          path: build/test-results/test
